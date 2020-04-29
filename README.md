@@ -1,1 +1,1 @@
-# proetto-tesi
+# progetto-tesi
