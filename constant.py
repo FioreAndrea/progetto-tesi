@@ -10,3 +10,14 @@ synapse = join(ROOT_DATASET_DIR, 'synapse')
 velocity = join(ROOT_DATASET_DIR, 'velocity')
 xalan = join(ROOT_DATASET_DIR, 'xanal')
 xcerces = join(ROOT_DATASET_DIR, 'xcerces')
+
+
+needed = ['name', 'wmc', 'dit', 'noc', 'cbo', 'rfc', 'lcom',
+       'ca', 'ce', 'npm', 'lcom3', 'loc', 'dam', 'moa', 'mfa', 'cam', 'ic',
+       'cbm', 'amc', 'max_cc', 'avg_cc', 'bug']
+features_withbug = ['wmc', 'dit', 'noc', 'cbo', 'rfc', 'lcom',
+       'ca', 'ce', 'npm', 'lcom3', 'loc', 'dam', 'moa', 'mfa', 'cam', 'ic',
+       'cbm', 'amc', 'max_cc', 'avg_cc', 'bug']
+features = ['wmc', 'dit', 'noc', 'cbo', 'rfc', 'lcom',
+       'ca', 'ce', 'npm', 'lcom3', 'loc', 'dam', 'moa', 'mfa', 'cam', 'ic',
+       'cbm', 'amc', 'max_cc', 'avg_cc']
