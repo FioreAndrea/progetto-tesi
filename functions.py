@@ -98,16 +98,16 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
         :returns: regularization cost.
     """
 
-    training_D3 = previous.iloc[idx].reset_index()
-    train = previous
     scaler = StandardScaler()
     if ds3:
+        training_D3 = previous.iloc[idx].reset_index()
         scaler.fit(training_D3[c.features])
         X_train = scaler.transform(training_D3[c.features])
         y_train = training_D3['bug']
         X_test = scaler.transform(current[c.features])
         y_test = current['bug']
     else:
+        train = previous
         scaler.fit(train[c.features])
         X_train = scaler.transform(train[c.features])
         y_train = train['bug']
@@ -129,7 +129,7 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
         sns.heatmap(cm, annot=True, fmt=".3f", linewidths=.5, square=True, cmap='Blues_r');
         plt.ylabel('Actual label');
         plt.xlabel('Predicted label');
-        all_sample_title = 'Confusion matrix \n Accuracy Score: {0}'.format(score)
+        all_sample_title = 'Confusion matrix \n Accuracy Score: {0}\n {1} {2}'.format(score, previous.version[0], current.version[1])
         plt.ylabel('Actual label')
         plt.xlabel('Predicted label')
         plt.title(all_sample_title, size=15);
@@ -164,8 +164,9 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
     fmeasure = f1_score(y_test, y_predicted, average='macro')
 
     if verbose:
-        #print('TPR :', TPR)
+        print('TPR :', TPR)
         #print('FPR :', FPR)
-        print('F-Measure : ', fmeasure)
-        print('G-Mean :', gmean)
-        print('Balance :', balance)
+        
+    print('F-Measure : ', fmeasure)
+    print('G-Mean :', gmean)
+    print('Balance :', balance)
