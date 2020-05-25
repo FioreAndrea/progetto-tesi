@@ -16,7 +16,11 @@ from sklearn.metrics import classification_report, f1_score
 from imblearn.metrics import geometric_mean_score
 from sklearn.preprocessing import StandardScaler
 import proxmin
+from pathlib import Path
+import joblib as joblib
 
+
+from joblib import dump, load
 
 
 def chi2_distance(A, B):
@@ -113,8 +117,17 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
         y_train = train['bug']
         X_test = scaler.transform(current[c.features])
         y_test = current['bug']
+    
+    filename = join(c.MODEL_DIR , 'digits_classifier.joblib.pkl')
 
-    clf = LogisticRegression(random_state=0).fit(X_train, y_train)
+     #if Path(filename).is_file():
+     #   print('Carico il modello')
+     #   clf = joblib.load(filename)
+   # else:        
+    #    print('Creo il modello')
+
+    clf = LogisticRegression(random_state=0, solver = 'liblinear')
+    clf = clf.fit(X_train, y_train)
     ##PREDICT##
     y_predicted = clf.predict(X_test)
     ##CALCULATE SCORE OF THE MODEL##
@@ -139,13 +152,20 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
         print("CLASSIFICATION REPORT")
         print(classification_report(y_test, y_predicted))
         print("Accuracy:", metrics.accuracy_score(y_test, y_predicted))
-        print("Precision:", metrics.precision_score(y_test, y_predicted, average='weighted'))
-        print("Recall:", metrics.recall_score(y_test, y_predicted, average='weighted'))
 
-    recall = metrics.recall_score(y_test, y_predicted, average='weighted')
-    precision = metrics.precision_score(y_test, y_predicted, average='weighted')
+    
+############################################################################
+############################################################################
+#    'micro':
+#     Calculate metrics globally by counting the total true positives, false negatives and false positives.
+#
+#   'macro':
+#     Calculate metrics for each label, and find their unweighted mean. This does not take label imbalance into account.
+############################################################################
+############################################################################
 
     gmean = geometric_mean_score(y_test, y_predicted, average='macro')
+    #print(cm)
     FP = cm.sum(axis=0) - np.diag(cm)
     FN = cm.sum(axis=1) - np.diag(cm)
     TP = np.diag(cm)
@@ -158,7 +178,7 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
     FPR = FP / (FP + TN)
 
     balance = 1 - np.sqrt(((0 - FPR) ** 2 + (1 - TPR) ** 2) / 2)
-    balance = np.average(balance)
+    #balance = np.average(balance)
 
     ##F MEASURE##
     fmeasure = f1_score(y_test, y_predicted, average='macro')
@@ -170,3 +190,7 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
     print('F-Measure : ', fmeasure)
     print('G-Mean :', gmean)
     print('Balance :', balance)
+
+    '''filename = join(c.MODEL_DIR , 'digits_classifier.joblib.pkl')
+    _ = joblib.dump(clf, filename, compress=9)
+'''
