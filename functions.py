@@ -18,6 +18,8 @@ from sklearn.preprocessing import StandardScaler
 import proxmin
 from pathlib import Path
 import joblib as joblib
+from sklearn.metrics import recall_score
+from imblearn.metrics import specificity_score
 
 
 from joblib import dump, load
@@ -65,7 +67,7 @@ def runDS3(D, reg, verbose = False):
     # run the ADMM(p=inf) algorithm.
     start = time.time()
     data_admm, num_of_rep_admm, obj_func_value_admm, obj_func_value_post_proc_admm, Z = \
-        DS.ADMM(mu=10 ** -1, epsilon=10 ** -7, max_iter=200000, p=np.inf)
+        DS.ADMM(mu=10 ** -1, epsilon=10 ** -7, max_iter=3000, p=np.inf)
     end = time.time()
     rep_super_frames = data_admm
 
@@ -118,7 +120,7 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
         X_test = scaler.transform(current[c.features])
         y_test = current['bug']
     
-    filename = join(c.MODEL_DIR , 'digits_classifier.joblib.pkl')
+    #filename = join(c.MODEL_DIR , 'digits_classifier.joblib.pkl')
 
      #if Path(filename).is_file():
      #   print('Carico il modello')
@@ -126,7 +128,7 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
    # else:        
     #    print('Creo il modello')
 
-    clf = LogisticRegression(random_state=0, solver = 'liblinear')
+    clf = LogisticRegression(solver = 'liblinear')
     clf = clf.fit(X_train, y_train)
     ##PREDICT##
     y_predicted = clf.predict(X_test)
@@ -164,7 +166,7 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
 ############################################################################
 ############################################################################
 
-    gmean = geometric_mean_score(y_test, y_predicted, average='macro')
+    gmean = geometric_mean_score(y_test, y_predicted, average = 'micro')
     #print(cm)
     FP = cm.sum(axis=0) - np.diag(cm)
     FN = cm.sum(axis=1) - np.diag(cm)
@@ -172,20 +174,23 @@ def run_logisticRegression(previous, current, idx, ds3 = False,verbose = False, 
     TN = cm.sum() - (FP + FN + TP)
 
     # Sensitivity, hit rate, recall, or true positive rate
-    TPR = TP / (TP + FN)
+    #TPR = TP / (TP + FN)
+    TPR = recall_score(y_test, y_predicted, average='micro')
 
     # Fall out or false positive rate
-    FPR = FP / (FP + TN)
-
-    balance = 1 - np.sqrt(((0 - FPR) ** 2 + (1 - TPR) ** 2) / 2)
-    #balance = np.average(balance)
+    #FPR = FP / (FP + TN)
+    FPR = 1 - (specificity_score(y_test, y_predicted, average='micro'))
+    
+    #Balance
+    balance = 1 - (np.sqrt((0 - FPR) ** 2 + (1 - TPR) ** 2) / np.sqrt(2))
+    balance = np.average(balance)
 
     ##F MEASURE##
-    fmeasure = f1_score(y_test, y_predicted, average='macro')
+    fmeasure = f1_score(y_test, y_predicted, average = 'micro')
 
     if verbose:
         print('TPR :', TPR)
-        #print('FPR :', FPR)
+        print('FPR :', FPR)
         
     print('F-Measure : ', fmeasure)
     print('G-Mean :', gmean)
