@@ -50,7 +50,10 @@ class DS3(object):
         cost = 0
         for j in range(len(self.dis_matrix)):
             for i in range(len(self.dis_matrix)):
-                cost += self.dis_matrix[i, j] * z[i, j]
+                try:
+                    cost += self.dis_matrix[i, j] * z[i, j]
+                except:
+                    break
 
         return cost
 
@@ -101,8 +104,12 @@ class DS3(object):
         # new representative matrix obtained after changing largest value in each column to 1 and other values to 0.
         new_z_matrix = np.zeros(np.array(z_matrix).shape)
         idx = np.argmax(z_matrix, axis=0)
-        for k in range(len(z_matrix)):
-            new_z_matrix[idx[k], k] = 1
+        
+        for k in range(len(idx)):
+            try:
+                new_z_matrix[idx[k], k] = 1
+            except:
+                break
 
         # obj_func_value = self.encodingCost(z_matrix) + self.regCost(z_matrix, p)
         obj_func_value = self.encodingCost(z_matrix) + self.regCost(z_matrix, np.inf)
@@ -116,9 +123,12 @@ class DS3(object):
         for i in range(len(z_matrix)):
             flag = 0
             for j in range(len(z_matrix)):
-                if z_matrix[i, j] > 0.1:
-                    flag = 1
-                    count += 1
+                try:
+                    if z_matrix[i, j] > 0.1:
+                        flag = 1
+                        count += 1
+                except:
+                    break
             if flag == 1:
                 data_rep.append(i)
 
